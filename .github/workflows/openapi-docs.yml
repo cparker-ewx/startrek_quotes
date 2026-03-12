@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - development
   workflow_dispatch:
 
 # Grant permissions required for GitHub Pages
@@ -23,17 +24,29 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout main
         uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-branch
 
+      - name: Checkout development
+        uses: actions/checkout@v4
+        with:
+          ref: development
+          path: dev-branch
+          
       - name: Install Redocly
         run: npm install -g @redocly/cli
 
       - name: Build HTML
         # This creates index.html in the 'public' folder
         run: |
-          mkdir public
+          mkdir public/dev
+          
           redocly build-docs openapi.yaml -o public/index.html
+
+          redocly build-docs openapi.yaml -o public/dev/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
