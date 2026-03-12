@@ -44,9 +44,9 @@ jobs:
         run: |
           mkdir -p public/dev
           
-          redocly build-docs openapi.yaml -o public/index.html
+          redocly build-docs main-branch/openapi.yaml -o public/index.html
 
-          redocly build-docs openapi.yaml -o public/dev/index.html
+          redocly build-docs dev-branch/openapi.yaml -o public/dev/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
