@@ -1,0 +1,46 @@
+name: Build docs
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Grant permissions required for GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Prevent multiple deployments from running at the same time
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Redocly
+        run: npm install -g @redocly/cli
+
+      - name: Build HTML
+        # This creates index.html in the 'public' folder
+        run: |
+          mkdir public
+          redocly build-docs openapi.yaml -o public/index.html
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload the entire 'public' directory
+          path: './public'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
