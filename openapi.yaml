@@ -1,0 +1,282 @@
+openapi: "3.1.0"
+
+info:
+  title: Star Trek Quotes API
+  version: 1.0.0
+  description: |
+    This API serves Star Trek quotes with optional filtering by series and character.
+    It supports listing quotes with pagination, fetching a quote by ID, retrieving a random quote,
+    and listing all character names that have at least one quote.
+
+paths:
+  /quotes:
+    get:
+      summary: List quotes.
+      description: |
+        Returns a paginated list of quotes. You may filter by series and character using query parameters.
+        The response includes the list of quote objects and the total count for pagination.
+      operationId: listQuotes
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of quotes to return in the response. Servers may enforce a cap.
+          schema:
+            type: integer
+            minimum: 1
+            default: 20
+        - name: offset
+          in: query
+          required: false
+          description: Number of quotes to skip before returning results. Used for pagination.
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: series
+          in: query
+          required: false
+          description: Restrict results to quotes from this series (e.g. TOS, TNG, DS9, VOY, ENT, DIS, PIC).
+          schema:
+            type: string
+        - name: character
+          in: query
+          required: false
+          description: Restrict results to quotes spoken by this character name.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully returns the requested list of quotes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuoteList"
+              example:
+                quotes:
+                  - id: "qt-001"
+                    text: "Live long and prosper."
+                    character: "Spock"
+                    series: "TOS"
+                    episode: "Amok Time"
+                    season: 2
+                    episodeNumber: 1
+                  - id: "qt-002"
+                    text: "Make it so."
+                    character: "Jean-Luc Picard"
+                    series: "TNG"
+                    episode: "Encounter at Farpoint"
+                    season: 1
+                    episodeNumber: 1
+                total: 2
+        "500":
+          description: An unexpected server error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "INTERNAL_ERROR"
+                message: "An unexpected error occurred while processing your request."
+
+  /quotes/random:
+    get:
+      summary: Get a random quote.
+      description: |
+        Returns a single quote chosen at random from the collection.
+        You may narrow the pool by providing optional series or character query parameters.
+      operationId: getRandomQuote
+      parameters:
+        - name: series
+          in: query
+          required: false
+          description: Restrict the random selection to quotes from this series.
+          schema:
+            type: string
+        - name: character
+          in: query
+          required: false
+          description: Restrict the random selection to quotes from this character.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully returns one random quote.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+              example:
+                id: "qt-042"
+                text: "Resistance is futile."
+                character: "Locutus of Borg"
+                series: "TNG"
+                episode: "The Best of Both Worlds"
+                season: 3
+                episodeNumber: 26
+        "500":
+          description: An unexpected server error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "INTERNAL_ERROR"
+                message: "An unexpected error occurred while processing your request."
+
+  /quotes/{quoteId}:
+    get:
+      summary: Get a quote by ID.
+      description: |
+        Returns the single quote whose unique identifier matches the given quoteId.
+        If no quote exists with that ID, the server responds with 404.
+      operationId: getQuoteById
+      parameters:
+        - name: quoteId
+          in: path
+          required: true
+          description: The unique identifier of the quote to retrieve.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully returns the requested quote.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+              example:
+                id: "qt-001"
+                text: "Live long and prosper."
+                character: "Spock"
+                series: "TOS"
+                episode: "Amok Time"
+                season: 2
+                episodeNumber: 1
+        "404":
+          description: No quote was found with the given quoteId.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "NOT_FOUND"
+                message: "No quote found with the specified ID."
+        "500":
+          description: An unexpected server error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "INTERNAL_ERROR"
+                message: "An unexpected error occurred while processing your request."
+
+  /characters:
+    get:
+      summary: List available characters.
+      description: |
+        Returns the list of all character names that have at least one quote in the system.
+        You may restrict the list to characters that appear in a given series using the optional series query parameter.
+      operationId: listCharacters
+      parameters:
+        - name: series
+          in: query
+          required: false
+          description: Restrict the list to characters that have quotes in this series.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully returns the list of character names.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CharacterList"
+              example:
+                characters:
+                  - "Spock"
+                  - "James T. Kirk"
+                  - "Jean-Luc Picard"
+                  - "Data"
+                  - "Q"
+        "500":
+          description: An unexpected server error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: "INTERNAL_ERROR"
+                message: "An unexpected error occurred while processing your request."
+
+components:
+  schemas:
+    Quote:
+      type: object
+      required:
+        - id
+        - text
+        - character
+        - series
+      properties:
+        id:
+          type: string
+          description: Unique identifier for this quote.
+        text:
+          type: string
+          description: The quote line as spoken in the episode.
+        character:
+          type: string
+          description: The name of the character who spoke the quote.
+        series:
+          type: string
+          description: The series code (e.g. TOS, TNG, DS9, VOY, ENT, DIS, PIC).
+        episode:
+          type: string
+          description: The title of the episode in which the quote appears.
+        season:
+          type: integer
+          description: The season number of the episode, if applicable.
+        episodeNumber:
+          type: integer
+          description: The episode number within the season, if applicable.
+
+    QuoteList:
+      type: object
+      required:
+        - quotes
+        - total
+      properties:
+        quotes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Quote"
+          description: The list of quote objects for the current page.
+        total:
+          type: integer
+          description: The total number of quotes matching the request, for pagination.
+
+    CharacterList:
+      type: object
+      required:
+        - characters
+      properties:
+        characters:
+          type: array
+          items:
+            type: string
+          description: Distinct character names that have at least one quote, optionally filtered by series.
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: A machine-readable error code for the failure.
+        message:
+          type: string
+          description: A human-readable description of the error.

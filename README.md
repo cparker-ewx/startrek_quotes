@@ -1,46 +1,44 @@
-# Power Data Analyzer
+# Star Trek Quotes API
 
-A tool that ingests 15-minute interval power data over a configurable time period and returns average power utilization grouped by percentile bins.
+An OpenAPI 3.1 specification for an API that serves Star Trek quotes, with listing, random quote, and character endpoints.
 
 ## Overview
 
-This application fetches power consumption data at 15-minute resolution for a selected date range, computes statistics, and presents the average power utilized within percentile bins (e.g., P10, P25, P50, P75, P90) for analysis and reporting.
+This repository contains the API contract (OpenAPI 3.1) for a read-only REST API that returns Star Trek quotes. The spec defines endpoints to list quotes with optional filters, fetch a quote by ID, get a random quote, and list available character names.
 
 ## Tech Stack
 
-- **React** — UI and application shell
-- **TypeScript** — Typed JavaScript for maintainability and developer experience
+- **OpenAPI 3.1** — API specification (YAML)
+- **pnpm** — Package manager
 
 ## Getting Started
-
-*(Add setup and run instructions here once the project is initialized.)*
 
 ### Prerequisites
 
 - Node.js (recommended LTS)
-- npm or yarn
+- pnpm ([install pnpm](https://pnpm.io/installation))
 
 ### Installation
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Development
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 ### Build
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 ## Project Structure
 
-*(Update this section as the codebase grows.)*
+- **openapi.yaml** — OpenAPI 3.1 specification for the Star Trek Quotes API (paths, schemas, examples).
 
 ## License
 
