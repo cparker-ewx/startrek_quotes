@@ -42,7 +42,7 @@ jobs:
       - name: Build HTML
         # This creates index.html in the 'public' folder
         run: |
-          mkdir public/dev
+          mkdir -p public/dev
           
           redocly build-docs openapi.yaml -o public/index.html
 
